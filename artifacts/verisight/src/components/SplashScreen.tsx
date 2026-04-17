@@ -17,7 +17,7 @@ export default function SplashScreen() {
       onClick={dismiss}
     >
       <div className="vs-splash-glow" />
-      <div className={`vs-splash-content${phase === "sliding" ? " vs-splash-content--out" : ""}`}>
+      <div className="vs-splash-content">
         <div className="vs-splash-title">
           <span className="vs-splash-word">Veri</span>
           <span className="vs-splash-word vs-splash-word--accent">Sight</span>
