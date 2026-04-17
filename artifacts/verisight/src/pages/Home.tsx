@@ -151,6 +151,11 @@ export default function Home() {
             <span className="vs-stat-value">50+</span>
             <span className="vs-stat-label">Deepfake models</span>
           </div>
+          <div className="vs-stat-divider" />
+          <div className="vs-stat">
+            <span className="vs-stat-value">6,000+</span>
+            <span className="vs-stat-label">Videos trained on</span>
+          </div>
         </div>
 
       </section>
