@@ -1,0 +1,563 @@
+/* VeriSight — Apple-inspired dark glassmorphism UI */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Root & Background ─────────────────────────────────────────────── */
+.vs-root {
+  min-height: 100vh;
+  background: #0a0a0f;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  color: #e2e8f0;
+}
+
+.vs-bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vs-bg-orb-1 {
+  width: 600px;
+  height: 600px;
+  top: -200px;
+  left: -200px;
+  background: radial-gradient(circle, rgba(99, 74, 240, 0.15) 0%, transparent 70%);
+}
+
+.vs-bg-orb-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -150px;
+  right: -150px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+}
+
+/* ── Layout ────────────────────────────────────────────────────────── */
+.vs-container {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+/* ── Header ────────────────────────────────────────────────────────── */
+.vs-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.vs-logo-icon {
+  width: 52px;
+  height: 52px;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 24px rgba(99, 74, 240, 0.2);
+}
+
+.vs-logo-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.vs-title {
+  font-size: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #e2e8f0 0%, #a5b4fc 50%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.vs-subtitle {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: rgba(165, 180, 252, 0.6);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ── Glass Card ────────────────────────────────────────────────────── */
+.vs-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 24px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 32px 64px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Sections ──────────────────────────────────────────────────────── */
+.vs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vs-section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(165, 180, 252, 0.5);
+}
+
+/* ── Dropzone ──────────────────────────────────────────────────────── */
+.vs-dropzone {
+  border: 1.5px dashed rgba(165, 180, 252, 0.2);
+  border-radius: 18px;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: rgba(255, 255, 255, 0.02);
+  position: relative;
+  overflow: hidden;
+  outline: none;
+}
+
+.vs-dropzone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: radial-gradient(ellipse at center, rgba(99, 74, 240, 0.06) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vs-dropzone:hover,
+.vs-dropzone:focus {
+  border-color: rgba(165, 180, 252, 0.45);
+  background: rgba(99, 74, 240, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(99, 74, 240, 0.15);
+}
+
+.vs-dropzone:hover::before,
+.vs-dropzone:focus::before {
+  opacity: 1;
+}
+
+.vs-dropzone--active {
+  border-color: rgba(165, 180, 252, 0.7);
+  background: rgba(99, 74, 240, 0.08);
+  box-shadow: 0 0 0 3px rgba(99, 74, 240, 0.12), 0 8px 32px rgba(99, 74, 240, 0.2);
+  transform: translateY(-2px);
+}
+
+.vs-dropzone--active::before {
+  opacity: 1;
+}
+
+.vs-dropzone--has-file {
+  border-color: rgba(165, 180, 252, 0.35);
+}
+
+.vs-hidden {
+  display: none;
+}
+
+.vs-dropzone-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.vs-upload-icon {
+  width: 44px;
+  height: 44px;
+  color: rgba(165, 180, 252, 0.5);
+  margin-bottom: 4px;
+}
+
+.vs-upload-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.vs-dropzone-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(226, 232, 240, 0.8);
+  margin: 0;
+}
+
+.vs-dropzone-hint {
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.35);
+  margin: 0;
+}
+
+.vs-dropzone-file-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.vs-file-icon {
+  width: 36px;
+  height: 36px;
+  color: rgba(165, 180, 252, 0.7);
+}
+
+.vs-file-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.vs-file-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(226, 232, 240, 0.9);
+  word-break: break-all;
+  max-width: 400px;
+}
+
+.vs-file-size {
+  font-size: 0.78rem;
+  color: rgba(165, 180, 252, 0.45);
+}
+
+/* ── Video Player ──────────────────────────────────────────────────── */
+.vs-video-wrapper {
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.vs-video {
+  width: 100%;
+  display: block;
+  max-height: 340px;
+  object-fit: contain;
+}
+
+/* ── Actions ───────────────────────────────────────────────────────── */
+.vs-actions {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.vs-btn-detect {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.vs-btn-detect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.vs-btn-detect:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.5);
+  background: linear-gradient(135deg, #6f72f5 0%, #9b6cf9 100%);
+}
+
+.vs-btn-detect:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3);
+}
+
+.vs-btn-detect:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.vs-btn-detect--loading {
+  pointer-events: none;
+}
+
+.vs-btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.vs-btn-reset {
+  padding: 14px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(226, 232, 240, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vs-btn-reset:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(226, 232, 240, 0.9);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Spinner ───────────────────────────────────────────────────────── */
+.vs-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: vs-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes vs-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Error ─────────────────────────────────────────────────────────── */
+.vs-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  font-size: 0.875rem;
+  color: rgba(252, 165, 165, 0.9);
+}
+
+.vs-error-icon {
+  width: 18px;
+  height: 18px;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+/* ── Results ───────────────────────────────────────────────────────── */
+.vs-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vs-verdict {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  border-radius: 16px;
+  border: 1px solid;
+}
+
+.vs-verdict--real {
+  background: rgba(34, 197, 94, 0.07);
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.vs-verdict--fake {
+  background: rgba(239, 68, 68, 0.07);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.vs-verdict-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vs-verdict--real .vs-verdict-icon {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.vs-verdict--fake .vs-verdict-icon {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.vs-verdict-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.vs-verdict-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vs-verdict-label {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.vs-verdict--real .vs-verdict-label {
+  color: #22c55e;
+}
+
+.vs-verdict--fake .vs-verdict-label {
+  color: #ef4444;
+}
+
+.vs-verdict-desc {
+  font-size: 0.85rem;
+  color: rgba(226, 232, 240, 0.5);
+}
+
+/* ── Confidence Bar ────────────────────────────────────────────────── */
+.vs-confidence {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vs-confidence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vs-confidence-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(165, 180, 252, 0.5);
+}
+
+.vs-confidence-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.vs-confidence-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.vs-confidence-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vs-confidence-fill--real {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.vs-confidence-fill--fake {
+  background: linear-gradient(90deg, #b91c1c, #ef4444);
+}
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+.vs-footer {
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(226, 232, 240, 0.2);
+}
+
+.vs-footer p { margin: 0; }
+
+/* ── Animations ────────────────────────────────────────────────────── */
+.vs-fade-in {
+  animation: vs-fadeIn 0.4s ease both;
+}
+
+@keyframes vs-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .vs-container {
+    padding: 40px 16px 60px;
+  }
+
+  .vs-card {
+    padding: 24px 20px;
+    gap: 22px;
+    border-radius: 20px;
+  }
+
+  .vs-title {
+    font-size: 2.2rem;
+  }
+
+  .vs-actions {
+    flex-direction: column;
+  }
+
+  .vs-btn-detect,
+  .vs-btn-reset {
+    width: 100%;
+  }
+}
