@@ -1,33 +1,4 @@
-import { useState, useEffect } from "react";
-
-const HEADLINE =
-  "VeriSight is a deep learning\u2013based deepfake detection system that analyzes video frames and motion patterns to identify manipulated content.";
-
-const START_DELAY = 400;
-const CHAR_SPEED  = 38;
-
 export default function Home() {
-  const [displayed, setDisplayed] = useState("");
-
-  useEffect(() => {
-    let i = 0;
-    let timeout: ReturnType<typeof setTimeout>;
-    let interval: ReturnType<typeof setInterval>;
-
-    timeout = setTimeout(() => {
-      interval = setInterval(() => {
-        i += 1;
-        setDisplayed(HEADLINE.slice(0, i));
-        if (i >= HEADLINE.length) clearInterval(interval);
-      }, CHAR_SPEED);
-    }, START_DELAY);
-
-    return () => {
-      clearTimeout(timeout);
-      clearInterval(interval);
-    };
-  }, []);
-
   return (
     <div className="vs-root">
       <div className="vs-bg-orb vs-bg-orb-1" />
@@ -36,7 +7,10 @@ export default function Home() {
       <div className="vs-noise" />
 
       <div className="vs-page-headline-wrap">
-        <p className="vs-page-headline">{displayed}</p>
+        <p className="vs-page-headline">
+          <span className="vs-headline-line1">VeriSight is a deep learning&ndash;based deepfake detection system</span>
+          <span className="vs-headline-line2">that analyzes video frames and motion patterns to identify manipulated content.</span>
+        </p>
       </div>
     </div>
   );
