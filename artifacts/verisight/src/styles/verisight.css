@@ -895,7 +895,7 @@
 }
 
 .vs-splash-word {
-  font-size: clamp(4rem, 14vw, 9rem);
+  font-size: clamp(5rem, 17vw, 11.5rem);
   font-weight: 800;
   letter-spacing: -0.055em;
   line-height: 1;
