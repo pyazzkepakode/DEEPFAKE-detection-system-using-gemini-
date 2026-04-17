@@ -140,18 +140,6 @@ export default function Home() {
           Built for researchers, journalists, and security professionals.
         </p>
 
-        <div className="vs-hero-actions">
-          <button className="vs-btn-hero-primary" onClick={scrollToApp}>
-            Try it now
-            <svg viewBox="0 0 20 20" fill="none" className="vs-hero-btn-icon">
-              <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          <div className="vs-hero-badge">
-            <span className="vs-badge-dot vs-badge-dot--live" />
-            Model active
-          </div>
-        </div>
 
         <div className="vs-hero-stats">
           <div className="vs-stat">
