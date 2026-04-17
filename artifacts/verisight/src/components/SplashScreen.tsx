@@ -6,7 +6,7 @@ export default function SplashScreen() {
   const dismiss = () => {
     if (phase !== "visible") return;
     setPhase("sliding");
-    setTimeout(() => setPhase("gone"), 1000);
+    setTimeout(() => setPhase("gone"), 1600);
   };
 
   if (phase === "gone") return null;
