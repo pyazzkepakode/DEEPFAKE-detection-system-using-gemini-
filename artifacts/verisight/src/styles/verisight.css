@@ -769,6 +769,60 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   SPLASH SCREEN
+   ══════════════════════════════════════════════════════════════════ */
+.vs-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #090910;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vs-splash--out {
+  opacity: 0;
+}
+
+.vs-splash-content {
+  display: flex;
+  align-items: baseline;
+  gap: 0.04em;
+  animation: vs-splash-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vs-splash-word {
+  font-size: clamp(4rem, 14vw, 9rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  color: rgba(226, 232, 240, 0.93);
+}
+
+.vs-splash-word--accent {
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 45%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes vs-splash-reveal {
+  from {
+    opacity: 0;
+    filter: blur(18px);
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+}
+
 /* ── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .vs-hero-title { font-size: clamp(4rem, 20vw, 5.5rem); }
