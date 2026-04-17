@@ -1,9 +1,6 @@
 export default function Home() {
   return (
-    <div className="vs-root">
-      <div className="vs-bg-orb vs-bg-orb-1" />
-      <div className="vs-bg-orb vs-bg-orb-2" />
-      <div className="vs-bg-orb vs-bg-orb-3" />
+    <div className="vs-root vs-root--home">
       <div className="vs-noise" />
 
       <div className="vs-page-headline-wrap">
