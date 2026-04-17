@@ -9,6 +9,10 @@ export default function Home() {
           <span className="vs-headline-line2">that analyzes video frames and motion patterns to identify manipulated content.</span>
         </p>
       </div>
+
+      <div className="vs-find-out-wrap">
+        <button className="vs-find-out-btn">Let's Find Out 👀</button>
+      </div>
     </div>
   );
 }

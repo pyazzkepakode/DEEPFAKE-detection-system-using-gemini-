@@ -15,6 +15,44 @@
   scroll-behavior: smooth;
 }
 
+/* ── Find Out button ───────────────────────────────────────────────── */
+.vs-find-out-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  margin-top: 52vh;
+}
+
+.vs-find-out-btn {
+  padding: 0.85em 2.4em;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(196, 180, 255, 0.35);
+  border-radius: 100px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 18px rgba(139, 92, 246, 0.45),
+    0 0 40px rgba(109, 40, 217, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 0 14px rgba(196, 180, 255, 0.6);
+  transition: box-shadow 0.3s ease, background 0.3s ease, transform 0.2s ease;
+}
+
+.vs-find-out-btn:hover {
+  background: rgba(139, 92, 246, 0.25);
+  box-shadow:
+    0 0 28px rgba(139, 92, 246, 0.65),
+    0 0 60px rgba(109, 40, 217, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
 /* ── Home page background image ────────────────────────────────────── */
 .vs-root--home {
   background:
