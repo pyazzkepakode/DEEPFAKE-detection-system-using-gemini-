@@ -873,11 +873,11 @@
 }
 
 .vs-splash-sub {
-  font-size: clamp(0.75rem, 2vw, 0.9rem);
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: clamp(0.82rem, 2.2vw, 1rem);
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(165, 180, 252, 0.45);
+  color: rgba(196, 210, 255, 0.88);
   margin: 0;
   animation: vs-splash-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
 }
