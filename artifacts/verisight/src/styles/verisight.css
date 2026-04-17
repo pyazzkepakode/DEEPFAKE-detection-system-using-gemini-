@@ -780,7 +780,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  cursor: pointer;
   transform: translateY(0);
   transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
 }
@@ -789,10 +789,21 @@
   transform: translateY(-100%);
 }
 
+.vs-splash-glow {
+  position: absolute;
+  width: 560px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.07) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
 .vs-splash-content {
   display: flex;
   align-items: baseline;
   gap: 0.04em;
+  position: relative;
   animation: vs-splash-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
