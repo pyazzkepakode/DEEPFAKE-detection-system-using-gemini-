@@ -874,7 +874,7 @@
 
 .vs-splash-sub {
   font-size: clamp(0.75rem, 2vw, 0.9rem);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(165, 180, 252, 0.45);
