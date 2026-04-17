@@ -1,5 +1,22 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 
+function useCountUp(target: number, duration = 1800) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let start: number | null = null;
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    const raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return count;
+}
+
 type DetectionResult = {
   label: "REAL" | "FAKE";
   confidence: number;
@@ -15,6 +32,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [scrollY, setScrollY] = useState(0);
   const [heroVisible, setHeroVisible] = useState(true);
+  const trainedCount = useCountUp(6000, 2000);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const appSectionRef = useRef<HTMLDivElement>(null);
 
@@ -138,7 +156,7 @@ export default function Home() {
 
         <div className="vs-hero-stats">
           <div className="vs-stat">
-            <span className="vs-stat-value">6,000+</span>
+            <span className="vs-stat-value">{trainedCount.toLocaleString()}+</span>
             <span className="vs-stat-label">Videos trained on for accurate detection</span>
           </div>
         </div>
