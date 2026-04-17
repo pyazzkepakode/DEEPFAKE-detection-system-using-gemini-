@@ -910,7 +910,6 @@
   vertical-align: middle;
   border-radius: 1px;
   box-shadow: 0 0 8px rgba(167, 139, 250, 0.9), 0 0 20px rgba(139, 92, 246, 0.6);
-  animation: vs-cursor-blink 0.75s step-end infinite;
 }
 .vs-splash-cursor--done {
   animation: vs-cursor-blink 0.75s step-end 3;
