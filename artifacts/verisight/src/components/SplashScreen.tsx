@@ -4,8 +4,8 @@ export default function SplashScreen() {
   const [phase, setPhase] = useState<"visible" | "fading" | "gone">("visible");
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setPhase("fading"), 2000);
-    const goneTimer = setTimeout(() => setPhase("gone"), 2900);
+    const fadeTimer = setTimeout(() => setPhase("fading"), 2500);
+    const goneTimer = setTimeout(() => setPhase("gone"), 3400);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(goneTimer);

@@ -793,7 +793,7 @@
   display: flex;
   align-items: baseline;
   gap: 0.04em;
-  animation: vs-splash-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: vs-splash-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .vs-splash-word {
