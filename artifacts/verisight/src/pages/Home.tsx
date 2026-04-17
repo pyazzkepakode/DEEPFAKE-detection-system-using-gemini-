@@ -122,11 +122,6 @@ export default function Home() {
           pointerEvents: heroVisible ? "auto" : "none",
         }}
       >
-        <div className="vs-hero-eyebrow">
-          <span className="vs-eyebrow-dot" />
-          Next-generation AI
-        </div>
-
         <h1 className="vs-hero-title">
           <span className="vs-hero-title-line">Veri</span>
           <span className="vs-hero-title-line vs-hero-title-accent">Sight</span>
