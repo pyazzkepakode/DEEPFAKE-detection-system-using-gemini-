@@ -781,11 +781,12 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0);
+  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 .vs-splash--out {
-  opacity: 0;
+  transform: translateY(-100%);
 }
 
 .vs-splash-content {
