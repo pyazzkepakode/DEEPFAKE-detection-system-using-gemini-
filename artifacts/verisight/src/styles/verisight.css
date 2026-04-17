@@ -807,6 +807,32 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   PAGE HEADLINE (typewriter)
+   ══════════════════════════════════════════════════════════════════ */
+.vs-page-headline-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 7vh 2rem 0;
+}
+
+.vs-page-headline {
+  max-width: 780px;
+  width: 100%;
+  font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
+  color: rgba(196, 180, 255, 0.88);
+  text-shadow:
+    0 0 28px rgba(139, 92, 246, 0.35),
+    0 0 60px rgba(109, 40, 217, 0.18);
+  margin: 0;
+  min-height: 1.65em;
+}
+
+/* ══════════════════════════════════════════════════════════════════
    SPLASH SCREEN
    ══════════════════════════════════════════════════════════════════ */
 .vs-splash {
