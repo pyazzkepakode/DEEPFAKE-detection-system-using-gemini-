@@ -153,6 +153,8 @@ export default function Home() {
           Built for researchers, journalists, and security professionals.
         </p>
 
+        <p className="vs-hero-tagline">Because not everything on the internet is real.</p>
+
 
         <div className="vs-hero-stats">
           <div className="vs-stat">
