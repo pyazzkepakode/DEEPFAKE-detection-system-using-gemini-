@@ -153,13 +153,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <button className="vs-scroll-hint" onClick={scrollToApp} aria-label="Scroll to app">
-          <span className="vs-scroll-hint-label">Scroll to detect</span>
-          <div className="vs-scroll-mouse">
-            <div className="vs-scroll-wheel" />
-          </div>
-        </button>
       </section>
 
       {/* ── APP SECTION ────────────────────────────────────────────── */}
