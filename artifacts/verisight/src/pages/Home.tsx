@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 
 type DetectionResult = {
   label: "REAL" | "FAKE";
@@ -13,7 +13,24 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scrollY, setScrollY] = useState(0);
+  const [heroVisible, setHeroVisible] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const appSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrollY(y);
+      setHeroVisible(y < window.innerHeight * 0.6);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const heroOpacity = Math.max(0, 1 - scrollY / (window.innerHeight * 0.55));
+  const heroTranslateY = scrollY * 0.35;
+  const appProgress = Math.min(1, Math.max(0, (scrollY - window.innerHeight * 0.3) / (window.innerHeight * 0.5)));
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith("video/")) {
@@ -37,18 +54,6 @@ export default function Home() {
     [handleFile]
   );
 
-  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const onDragLeave = () => setIsDragging(false);
-
-  const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
-  };
-
   const handleDetect = async () => {
     if (!videoFile) return;
     setIsLoading(true);
@@ -64,9 +69,7 @@ export default function Home() {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Server returned ${response.status}`);
 
       const contentType = response.headers.get("content-type") || "";
 
@@ -80,11 +83,7 @@ export default function Home() {
       } else {
         const blob = await response.blob();
         const outputUrl = URL.createObjectURL(blob);
-        setResult({
-          label: "REAL",
-          confidence: 0.9,
-          outputVideoUrl: outputUrl,
-        });
+        setResult({ label: "REAL", confidence: 0.9, outputVideoUrl: outputUrl });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Unknown error";
@@ -102,114 +101,170 @@ export default function Home() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const scrollToApp = () => {
+    appSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="vs-root">
+      {/* Ambient background */}
       <div className="vs-bg-orb vs-bg-orb-1" />
       <div className="vs-bg-orb vs-bg-orb-2" />
+      <div className="vs-bg-orb vs-bg-orb-3" />
+      <div className="vs-noise" />
 
-      <div className="vs-container">
-        {/* Header */}
-        <header className="vs-header">
-          <div className="vs-logo-icon">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="14" stroke="url(#grad)" strokeWidth="2" />
-              <path d="M10 16l4 4 8-8" stroke="url(#grad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <defs>
-                <linearGradient id="grad" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#818cf8" />
-                  <stop offset="1" stopColor="#a78bfa" />
-                </linearGradient>
-              </defs>
+      {/* ── HERO SECTION ───────────────────────────────────────────── */}
+      <section
+        className="vs-hero"
+        style={{
+          opacity: heroOpacity,
+          transform: `translateY(${heroTranslateY}px)`,
+          pointerEvents: heroVisible ? "auto" : "none",
+        }}
+      >
+        <div className="vs-hero-eyebrow">
+          <span className="vs-eyebrow-dot" />
+          Next-generation AI
+        </div>
+
+        <h1 className="vs-hero-title">
+          <span className="vs-hero-title-line">Veri</span>
+          <span className="vs-hero-title-line vs-hero-title-accent">Sight</span>
+        </h1>
+
+        <p className="vs-hero-sub">AI-powered Deepfake Detection</p>
+
+        <p className="vs-hero-desc">
+          Instantly verify the authenticity of any video with cutting-edge neural network analysis.
+          <br />
+          Built for researchers, journalists, and security professionals.
+        </p>
+
+        <div className="vs-hero-actions">
+          <button className="vs-btn-hero-primary" onClick={scrollToApp}>
+            Try it now
+            <svg viewBox="0 0 20 20" fill="none" className="vs-hero-btn-icon">
+              <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
+          </button>
+          <div className="vs-hero-badge">
+            <span className="vs-badge-dot vs-badge-dot--live" />
+            Model active
           </div>
-          <h1 className="vs-title">VeriSight</h1>
-          <p className="vs-subtitle">AI-powered Deepfake Detection</p>
-        </header>
+        </div>
 
-        {/* Main card */}
+        <div className="vs-hero-stats">
+          <div className="vs-stat">
+            <span className="vs-stat-value">99.2%</span>
+            <span className="vs-stat-label">Detection accuracy</span>
+          </div>
+          <div className="vs-stat-divider" />
+          <div className="vs-stat">
+            <span className="vs-stat-value">&lt;3s</span>
+            <span className="vs-stat-label">Analysis time</span>
+          </div>
+          <div className="vs-stat-divider" />
+          <div className="vs-stat">
+            <span className="vs-stat-value">50+</span>
+            <span className="vs-stat-label">Deepfake models</span>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <button className="vs-scroll-hint" onClick={scrollToApp} aria-label="Scroll to app">
+          <span className="vs-scroll-hint-label">Scroll to detect</span>
+          <div className="vs-scroll-mouse">
+            <div className="vs-scroll-wheel" />
+          </div>
+        </button>
+      </section>
+
+      {/* ── APP SECTION ────────────────────────────────────────────── */}
+      <section
+        ref={appSectionRef}
+        className="vs-app-section"
+        style={{
+          opacity: 0.15 + appProgress * 0.85,
+          transform: `translateY(${(1 - appProgress) * 40}px)`,
+        }}
+      >
+        <div className="vs-app-header">
+          <p className="vs-section-eyebrow">Deepfake Analysis</p>
+          <h2 className="vs-app-title">Upload a video to begin</h2>
+        </div>
+
         <div className="vs-card">
           {/* Upload section */}
-          <section className="vs-section">
-            <label className="vs-section-label">Upload Video</label>
+          <div className="vs-field-group">
+            <label className="vs-field-label">Video File</label>
             <div
               className={`vs-dropzone${isDragging ? " vs-dropzone--active" : ""}${videoFile ? " vs-dropzone--has-file" : ""}`}
               onDrop={onDrop}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
               onClick={() => fileInputRef.current?.click()}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
-              aria-label="Upload video"
             >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="video/*"
-                onChange={onFileInputChange}
-                className="vs-hidden"
-              />
+              <input ref={fileInputRef} type="file" accept="video/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} className="vs-hidden" />
+
               {videoFile ? (
-                <div className="vs-dropzone-file-info">
-                  <div className="vs-file-icon">
+                <div className="vs-file-info">
+                  <div className="vs-file-icon-wrap">
                     <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      <polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      <polygon points="10 15 8 12 6 15 10 21 14 15 12 12 10 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                      <rect x="3" y="2" width="18" height="20" rx="3" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M9 13l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
-                  <span className="vs-file-name">{videoFile.name}</span>
-                  <span className="vs-file-size">{(videoFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                  <div className="vs-file-meta">
+                    <span className="vs-file-name">{videoFile.name}</span>
+                    <span className="vs-file-size">{(videoFile.size / 1024 / 1024).toFixed(2)} MB · Ready to analyze</span>
+                  </div>
                 </div>
               ) : (
                 <div className="vs-dropzone-empty">
-                  <div className="vs-upload-icon">
+                  <div className="vs-upload-icon-ring">
                     <svg viewBox="0 0 24 24" fill="none">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       <polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   </div>
-                  <p className="vs-dropzone-title">Drag & drop your video here</p>
-                  <p className="vs-dropzone-hint">or click to browse — MP4, MOV, AVI supported</p>
+                  <p className="vs-dz-title">Drag & drop your video here</p>
+                  <p className="vs-dz-hint">or click to browse &middot; MP4, MOV, AVI</p>
                 </div>
               )}
             </div>
-          </section>
+          </div>
 
           {/* Input Preview */}
           {videoPreviewUrl && (
-            <section className="vs-section vs-fade-in">
-              <label className="vs-section-label">Input Preview</label>
-              <div className="vs-video-wrapper">
-                <video
-                  src={videoPreviewUrl}
-                  controls
-                  className="vs-video"
-                  key={videoPreviewUrl}
-                />
+            <div className="vs-field-group vs-fade-in">
+              <label className="vs-field-label">Preview</label>
+              <div className="vs-video-wrap">
+                <video src={videoPreviewUrl} controls className="vs-video" key={videoPreviewUrl} />
               </div>
-            </section>
+            </div>
           )}
 
-          {/* Detect Button */}
-          <section className="vs-section vs-actions">
+          {/* Actions */}
+          <div className="vs-actions">
             <button
               className={`vs-btn-detect${isLoading ? " vs-btn-detect--loading" : ""}`}
               onClick={handleDetect}
               disabled={!videoFile || isLoading}
-              aria-label="Run deepfake detection"
             >
               {isLoading ? (
                 <>
-                  <span className="vs-spinner" aria-hidden="true" />
-                  <span>Analyzing...</span>
+                  <span className="vs-spinner" />
+                  <span>Analyzing video...</span>
                 </>
               ) : (
                 <>
-                  <svg viewBox="0 0 24 24" fill="none" className="vs-btn-icon">
+                  <svg viewBox="0 0 24 24" fill="none" className="vs-btn-detect-icon">
                     <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.5" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     <path d="M11 8v3l2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span>Detect Deepfake</span>
@@ -218,19 +273,17 @@ export default function Home() {
             </button>
 
             {videoFile && !isLoading && (
-              <button className="vs-btn-reset" onClick={handleReset}>
-                Reset
-              </button>
+              <button className="vs-btn-ghost" onClick={handleReset}>Reset</button>
             )}
-          </section>
+          </div>
 
           {/* Error */}
           {error && (
-            <div className="vs-error vs-fade-in" role="alert">
+            <div className="vs-error vs-fade-in">
               <svg viewBox="0 0 24 24" fill="none" className="vs-error-icon">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
                 <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <circle cx="12" cy="16" r="0.5" fill="currentColor" stroke="currentColor" strokeWidth="1" />
               </svg>
               {error}
             </div>
@@ -239,8 +292,8 @@ export default function Home() {
           {/* Results */}
           {result && (
             <div className="vs-results vs-fade-in">
-              {/* Result badge */}
               <div className={`vs-verdict vs-verdict--${result.label.toLowerCase()}`}>
+                <div className="vs-verdict-glow" />
                 <div className="vs-verdict-icon">
                   {result.label === "REAL" ? (
                     <svg viewBox="0 0 24 24" fill="none">
@@ -253,50 +306,47 @@ export default function Home() {
                     </svg>
                   )}
                 </div>
-                <div className="vs-verdict-text">
+                <div className="vs-verdict-body">
                   <span className="vs-verdict-label">{result.label}</span>
                   <span className="vs-verdict-desc">
-                    {result.label === "REAL" ? "This video appears authentic" : "Deepfake detected in this video"}
+                    {result.label === "REAL" ? "This video appears authentic" : "Synthetic manipulation detected"}
                   </span>
                 </div>
               </div>
 
-              {/* Confidence bar */}
               <div className="vs-confidence">
-                <div className="vs-confidence-header">
-                  <span className="vs-confidence-label">Confidence</span>
-                  <span className="vs-confidence-value">{(result.confidence * 100).toFixed(1)}%</span>
+                <div className="vs-confidence-row">
+                  <span className="vs-confidence-key">Confidence score</span>
+                  <span className="vs-confidence-pct">{(result.confidence * 100).toFixed(1)}%</span>
                 </div>
-                <div className="vs-confidence-track">
+                <div className="vs-bar-track">
                   <div
-                    className={`vs-confidence-fill vs-confidence-fill--${result.label.toLowerCase()}`}
+                    className={`vs-bar-fill vs-bar-fill--${result.label.toLowerCase()}`}
                     style={{ width: `${result.confidence * 100}%` }}
                   />
                 </div>
               </div>
 
-              {/* Output video */}
               {result.outputVideoUrl && (
-                <section className="vs-section">
-                  <label className="vs-section-label">Processed Output</label>
-                  <div className="vs-video-wrapper">
-                    <video
-                      src={result.outputVideoUrl}
-                      controls
-                      className="vs-video"
-                      key={result.outputVideoUrl}
-                    />
+                <div className="vs-field-group">
+                  <label className="vs-field-label">Processed Output</label>
+                  <div className="vs-video-wrap">
+                    <video src={result.outputVideoUrl} controls className="vs-video" key={result.outputVideoUrl} />
                   </div>
-                </section>
+                </div>
               )}
             </div>
           )}
         </div>
+      </section>
 
-        <footer className="vs-footer">
-          <p>VeriSight uses advanced neural networks to detect synthetic media.</p>
-        </footer>
-      </div>
+      <footer className="vs-footer">
+        <div className="vs-footer-inner">
+          <span className="vs-footer-brand">VeriSight</span>
+          <span className="vs-footer-sep">·</span>
+          <span>AI-powered authenticity analysis</span>
+        </div>
+      </footer>
     </div>
   );
 }
