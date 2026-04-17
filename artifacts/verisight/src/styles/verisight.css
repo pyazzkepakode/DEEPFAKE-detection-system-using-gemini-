@@ -836,6 +836,7 @@
   letter-spacing: -0.01em;
   color: #ffffff;
   white-space: nowrap;
+  text-shadow: 0 0 18px rgba(196, 180, 255, 0.4);
 }
 
 .vs-headline-line2 {
@@ -846,6 +847,7 @@
   letter-spacing: -0.01em;
   color: rgba(255, 255, 255, 0.72);
   white-space: nowrap;
+  text-shadow: 0 0 18px rgba(196, 180, 255, 0.3);
 }
 
 /* ══════════════════════════════════════════════════════════════════
