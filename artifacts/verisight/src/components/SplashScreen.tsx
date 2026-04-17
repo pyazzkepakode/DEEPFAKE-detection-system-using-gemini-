@@ -6,7 +6,7 @@ export default function SplashScreen() {
   const dismiss = () => {
     if (phase !== "visible") return;
     setPhase("sliding");
-    setTimeout(() => setPhase("gone"), 900);
+    setTimeout(() => setPhase("gone"), 1000);
   };
 
   if (phase === "gone") return null;
@@ -17,9 +17,12 @@ export default function SplashScreen() {
       onClick={dismiss}
     >
       <div className="vs-splash-glow" />
-      <div className="vs-splash-content">
-        <span className="vs-splash-word">Veri</span>
-        <span className="vs-splash-word vs-splash-word--accent">Sight</span>
+      <div className={`vs-splash-content${phase === "sliding" ? " vs-splash-content--out" : ""}`}>
+        <div className="vs-splash-title">
+          <span className="vs-splash-word">Veri</span>
+          <span className="vs-splash-word vs-splash-word--accent">Sight</span>
+        </div>
+        <p className="vs-splash-sub">AI Model Powered Deepfake Detection</p>
       </div>
     </div>
   );
