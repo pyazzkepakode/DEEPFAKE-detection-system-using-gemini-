@@ -138,23 +138,8 @@ export default function Home() {
 
         <div className="vs-hero-stats">
           <div className="vs-stat">
-            <span className="vs-stat-value">99.2%</span>
-            <span className="vs-stat-label">Detection accuracy</span>
-          </div>
-          <div className="vs-stat-divider" />
-          <div className="vs-stat">
-            <span className="vs-stat-value">&lt;3s</span>
-            <span className="vs-stat-label">Analysis time</span>
-          </div>
-          <div className="vs-stat-divider" />
-          <div className="vs-stat">
-            <span className="vs-stat-value">50+</span>
-            <span className="vs-stat-label">Deepfake models</span>
-          </div>
-          <div className="vs-stat-divider" />
-          <div className="vs-stat">
             <span className="vs-stat-value">6,000+</span>
-            <span className="vs-stat-label">Videos trained on</span>
+            <span className="vs-stat-label">Videos trained on for accurate detection</span>
           </div>
         </div>
 
