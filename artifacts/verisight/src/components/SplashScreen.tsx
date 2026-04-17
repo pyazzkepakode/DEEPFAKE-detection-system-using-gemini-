@@ -25,7 +25,7 @@ export default function SplashScreen({ onDismiss }: Props) {
           <span className="vs-splash-word">Veri</span>
           <span className="vs-splash-word vs-splash-word--accent">Sight</span>
         </div>
-        <p className="vs-splash-sub">AI Model Powered Deepfake Detection</p>
+        <p className="vs-splash-sub">AI Powered Deepfake Detection</p>
         <p className="vs-splash-tagline">Because not everything on the internet is real.</p>
       </div>
     </div>

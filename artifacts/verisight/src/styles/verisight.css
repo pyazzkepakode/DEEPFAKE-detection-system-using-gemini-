@@ -813,7 +813,9 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #090910;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(109, 40, 217, 0.55) 0%, rgba(76, 29, 149, 0.3) 35%, rgba(20, 8, 40, 0.95) 65%, #060408 100%),
+    linear-gradient(160deg, #0d0618 0%, #08040f 50%, #060210 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -881,7 +883,7 @@
 }
 
 .vs-splash-tagline {
-  font-size: 0.88rem;
+  font-size: 1.15rem;
   font-weight: 700;
   font-style: normal;
   color: rgba(226, 232, 240, 0.9);
