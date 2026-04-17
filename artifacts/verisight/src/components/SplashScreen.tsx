@@ -1,11 +1,14 @@
 import { useState } from "react";
 
-export default function SplashScreen() {
+type Props = { onDismiss: () => void };
+
+export default function SplashScreen({ onDismiss }: Props) {
   const [phase, setPhase] = useState<"visible" | "sliding" | "gone">("visible");
 
   const dismiss = () => {
     if (phase !== "visible") return;
     setPhase("sliding");
+    onDismiss(); // fires simultaneously — both panels move together
     setTimeout(() => setPhase("gone"), 1600);
   };
 
