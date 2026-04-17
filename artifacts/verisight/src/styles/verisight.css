@@ -892,12 +892,33 @@
   font-style: normal;
   color: rgba(226, 232, 240, 0.9);
   letter-spacing: 0.01em;
-  margin: 4px 0 0;
+  margin: 22px 0 0;
+  min-height: 1.6em;
   text-shadow:
     0 0 8px rgba(167, 139, 250, 0.9),
     0 0 20px rgba(139, 92, 246, 0.7),
     0 0 40px rgba(124, 58, 237, 0.5);
   animation: vs-splash-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
+}
+
+.vs-splash-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: rgba(196, 180, 255, 0.9);
+  margin-left: 3px;
+  vertical-align: middle;
+  border-radius: 1px;
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.9), 0 0 20px rgba(139, 92, 246, 0.6);
+  animation: vs-cursor-blink 0.75s step-end infinite;
+}
+.vs-splash-cursor--done {
+  animation: vs-cursor-blink 0.75s step-end 3;
+  opacity: 0;
+}
+@keyframes vs-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 .vs-splash-word {
