@@ -829,12 +829,22 @@
 
 .vs-splash-glow {
   position: absolute;
-  width: 640px;
-  height: 320px;
+  width: 900px;
+  height: 420px;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.07) 0%, transparent 70%);
-  filter: blur(40px);
+  background: radial-gradient(ellipse at center,
+    rgba(139, 92, 246, 0.18) 0%,
+    rgba(99, 102, 241, 0.1) 35%,
+    rgba(255, 255, 255, 0.04) 55%,
+    transparent 72%);
+  filter: blur(48px);
   pointer-events: none;
+  animation: vs-glow-breathe 5s ease-in-out infinite;
+}
+
+@keyframes vs-glow-breathe {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%       { opacity: 1; transform: scale(1.08); }
 }
 
 .vs-splash-content {
@@ -850,6 +860,14 @@
   display: flex;
   align-items: baseline;
   gap: 0.04em;
+  animation: vs-splash-3d-float 7s ease-in-out 1s infinite;
+  will-change: transform;
+}
+
+@keyframes vs-splash-3d-float {
+  0%, 100% { transform: perspective(900px) rotateX(2deg) rotateY(-0.8deg) translateY(0px); }
+  35%       { transform: perspective(900px) rotateX(-0.5deg) rotateY(0.8deg) translateY(-7px); }
+  65%       { transform: perspective(900px) rotateX(1deg) rotateY(-0.3deg) translateY(-4px); }
 }
 
 .vs-splash-sub {
@@ -881,7 +899,17 @@
   font-weight: 800;
   letter-spacing: -0.055em;
   line-height: 1;
-  color: rgba(226, 232, 240, 0.93);
+  color: rgba(230, 235, 255, 0.97);
+  text-shadow:
+    1px 1px 0px rgba(150, 140, 255, 0.45),
+    2px 2px 0px rgba(130, 120, 245, 0.38),
+    3px 3px 0px rgba(110, 100, 220, 0.32),
+    4px 4px 0px rgba(90, 80, 200, 0.25),
+    5px 5px 0px rgba(70, 60, 180, 0.18),
+    6px 6px 0px rgba(50, 40, 160, 0.12),
+    0 0 18px rgba(200, 210, 255, 0.5),
+    0 0 45px rgba(160, 170, 255, 0.3),
+    0 0 90px rgba(120, 130, 255, 0.18);
 }
 
 .vs-splash-word--accent {
@@ -889,6 +917,13 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter:
+    drop-shadow(2px 2px 0 rgba(70, 50, 200, 0.55))
+    drop-shadow(4px 4px 0 rgba(50, 30, 180, 0.4))
+    drop-shadow(6px 6px 0 rgba(30, 10, 160, 0.25))
+    drop-shadow(0 0 14px rgba(167, 139, 250, 0.85))
+    drop-shadow(0 0 35px rgba(139, 92, 246, 0.55))
+    drop-shadow(0 0 70px rgba(99, 102, 241, 0.3));
 }
 
 @keyframes vs-splash-reveal {
