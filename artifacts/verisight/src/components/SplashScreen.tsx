@@ -56,7 +56,6 @@ export default function SplashScreen({ onDismiss }: Props) {
         <p className="vs-splash-sub">AI Powered Deepfake Detection</p>
         <p className="vs-splash-tagline">
           {typed}
-          <span className={`vs-splash-cursor${done ? " vs-splash-cursor--done" : ""}`} />
         </p>
       </div>
     </div>
