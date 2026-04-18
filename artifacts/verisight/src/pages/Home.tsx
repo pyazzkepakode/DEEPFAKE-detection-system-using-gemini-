@@ -1,6 +1,10 @@
 import { useRef, useEffect, useState } from "react";
 
-export default function Home() {
+interface HomeProps {
+  onLetsGo: () => void;
+}
+
+export default function Home({ onLetsGo }: HomeProps) {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -66,7 +70,7 @@ export default function Home() {
       </div>
 
       <div className="vs-find-out-wrap">
-        <button className="vs-find-out-btn">Let's Find Out 👀</button>
+        <button className="vs-find-out-btn" onClick={onLetsGo}>Let's Find Out 👀</button>
       </div>
     </div>
   );

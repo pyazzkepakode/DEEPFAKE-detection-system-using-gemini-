@@ -1,42 +1,42 @@
 import { useState } from "react";
-import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "@/pages/Home";
-import NotFound from "@/pages/not-found";
+import DetectPage from "@/pages/DetectPage";
 import SplashScreen from "@/components/SplashScreen";
 
 const queryClient = new QueryClient();
 
-function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
+const SLIDE = "transform 1.5s cubic-bezier(0.45, 0, 0.55, 1)";
 
 function App() {
-  const [dismissed, setDismissed] = useState(false);
+  const [page, setPage] = useState(0); // 0=splash, 1=home, 2=detect
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div style={{ position: "relative", overflow: dismissed ? "visible" : "hidden", height: dismissed ? "auto" : "100vh" }}>
-        {/* Main content sits one viewport below the splash, slides up together */}
-        <div
-          style={{
-            transform: dismissed ? "translateY(0)" : "translateY(100vh)",
-            transition: "transform 1.5s cubic-bezier(0.45, 0, 0.55, 1)",
-            willChange: "transform",
-          }}
-        >
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+
+        {/* ── Page 3: Detect — sits below home, slides up on go ── */}
+        <div style={{
+          position: "absolute", inset: 0,
+          transform: page >= 2 ? "translateY(0)" : "translateY(100vh)",
+          transition: SLIDE,
+          willChange: "transform",
+        }}>
+          <DetectPage />
         </div>
 
-        {/* Splash sits on top, slides up simultaneously */}
-        <SplashScreen onDismiss={() => setDismissed(true)} />
+        {/* ── Page 2: Home — slides up from below splash, then slides up to reveal detect ── */}
+        <div style={{
+          position: "absolute", inset: 0,
+          transform: page === 0 ? "translateY(100vh)" : page === 1 ? "translateY(0)" : "translateY(-100vh)",
+          transition: SLIDE,
+          willChange: "transform",
+        }}>
+          <Home onLetsGo={() => setPage(2)} />
+        </div>
+
+        {/* ── Page 1: Splash — sits on top, slides up on dismiss ── */}
+        <SplashScreen onDismiss={() => setPage(1)} />
       </div>
     </QueryClientProvider>
   );

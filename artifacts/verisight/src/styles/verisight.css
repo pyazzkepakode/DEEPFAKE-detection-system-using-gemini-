@@ -185,6 +185,13 @@
     url('/bg-home.webp') center center / cover no-repeat;
 }
 
+/* ── Detect page background image ──────────────────────────────────── */
+.vs-root--detect {
+  background:
+    linear-gradient(to bottom, rgba(4, 2, 12, 0.55) 0%, rgba(6, 3, 16, 0.42) 50%, rgba(4, 2, 12, 0.65) 100%),
+    url('/bg-detect.webp') center center / cover no-repeat;
+}
+
 /* ── Ambient background orbs ───────────────────────────────────────── */
 .vs-bg-orb {
   position: fixed;
