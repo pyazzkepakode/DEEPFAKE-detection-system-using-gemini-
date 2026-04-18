@@ -12,18 +12,21 @@ export default function Home() {
 
       {/* Left sidebar timeline */}
       <div className="vs-sidebar">
-        <div className="vs-sidebar-line" />
+        <div className="vs-sidebar-vline" />
         <div className="vs-sidebar-top-dot" />
-        {FEATURES.map((label, i) => (
-          <div
-            className="vs-sidebar-item"
-            key={i}
-            style={{ animationDelay: `${0.1 + i * 0.12}s` }}
-          >
-            <span className="vs-sidebar-label">{label}</span>
-            <div className="vs-sidebar-dot" />
-          </div>
-        ))}
+        <div className="vs-sidebar-items">
+          {FEATURES.map((label, i) => (
+            <div
+              className="vs-sidebar-item"
+              key={i}
+              style={{ animationDelay: `${0.15 + i * 0.18}s` }}
+            >
+              <div className="vs-sidebar-hline" />
+              <div className="vs-sidebar-dot" />
+              <span className="vs-sidebar-label">{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="vs-page-headline-wrap">
