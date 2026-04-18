@@ -1,31 +1,60 @@
-const FEATURES = [
-  "Trained on 6,000+ videos",
-  "CNN + LSTM architecture",
-  "Frame-by-frame analysis",
-  "Temporal pattern detection",
-];
+import { useRef, useEffect, useState } from "react";
 
 export default function Home() {
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = timelineRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="vs-root vs-root--home">
       <div className="vs-noise" />
 
-      {/* Left sidebar timeline */}
-      <div className="vs-sidebar">
-        <div className="vs-sidebar-vline" />
-        <div className="vs-sidebar-top-dot" />
-        <div className="vs-sidebar-items">
-          {FEATURES.map((label, i) => (
-            <div
-              className="vs-sidebar-item"
-              key={i}
-              style={{ animationDelay: `${0.15 + i * 0.18}s` }}
-            >
-              <div className="vs-sidebar-hline" />
-              <div className="vs-sidebar-dot" />
-              <span className="vs-sidebar-label">{label}</span>
+      <div
+        ref={timelineRef}
+        className={`vs-timeline-section${isVisible ? " is-visible" : ""}`}
+      >
+        <div className="vs-timeline-vertical-wrapper">
+          <div className="vs-timeline-circle" />
+        </div>
+
+        <div className="vs-timeline-content">
+          <div className="vs-timeline-item">
+            <div className="vs-timeline-text-wrapper">
+              <span className="vs-timeline-text">Trained on 6,000+ videos</span>
             </div>
-          ))}
+            <div className="vs-timeline-horizontal" />
+          </div>
+
+          <div className="vs-timeline-item">
+            <div className="vs-timeline-text-wrapper">
+              <span className="vs-timeline-text">CNN + LSTM architecture</span>
+            </div>
+            <div className="vs-timeline-horizontal" />
+          </div>
+
+          <div className="vs-timeline-item">
+            <div className="vs-timeline-text-wrapper">
+              <span className="vs-timeline-text">Frame-by-frame analysis</span>
+            </div>
+            <div className="vs-timeline-horizontal" />
+          </div>
+
+          <div className="vs-timeline-item">
+            <div className="vs-timeline-text-wrapper">
+              <span className="vs-timeline-text">Temporal pattern detection</span>
+            </div>
+            <div className="vs-timeline-horizontal" />
+          </div>
         </div>
       </div>
 

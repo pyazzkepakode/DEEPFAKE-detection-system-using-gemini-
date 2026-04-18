@@ -1,0 +1,154 @@
+1. The React Component Code
+This is the structure for the timeline section (which functions as a vertical sidebar of features).
+
+tsx
+<div 
+  ref={timelineRef}
+  className={`vs-timeline-section ${isVisible ? 'is-visible' : ''}`}
+>
+  <div className="vs-timeline-vertical-wrapper">
+    <div className="vs-timeline-circle" />
+  </div>
+  
+  <div className="vs-timeline-content">
+    <div className="vs-timeline-item">
+      <div className="vs-timeline-text-wrapper">
+        <span className="vs-timeline-text">Trained on 6,000+ videos</span>
+      </div>
+      <div className="vs-timeline-horizontal" />
+    </div>
+    
+    <div className="vs-timeline-item">
+      <div className="vs-timeline-text-wrapper">
+        <span className="vs-timeline-text">CNN + LSTM architecture</span>
+      </div>
+      <div className="vs-timeline-horizontal" />
+    </div>
+    <div className="vs-timeline-item">
+      <div className="vs-timeline-text-wrapper">
+        <span className="vs-timeline-text">Frame-by-frame analysis</span>
+      </div>
+      <div className="vs-timeline-horizontal" />
+    </div>
+    <div className="vs-timeline-item">
+      <div className="vs-timeline-text-wrapper">
+        <span className="vs-timeline-text">Temporal pattern detection</span>
+      </div>
+      <div className="vs-timeline-horizontal" />
+    </div>
+  </div>
+</div>
+2. The Styling (CSS) with Glow Effects
+This contains the specific logic for the glowing vertical line and the animated items.
+
+css
+/* ── Timeline Feature Section ────────────────────────────────────── */
+.vs-timeline-section {
+  position: absolute;
+  top: 55%;
+  left: 10vw; 
+  height: 75vh;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none;
+}
+.vs-timeline-vertical-wrapper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+/* The Glowing Vertical Line */
+.vs-timeline-vertical-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(165, 180, 252, 0.9) 0%, rgba(165, 180, 252, 0) 100%);
+  box-shadow: 
+    0 0 20px rgba(165, 180, 252, 0.8), 
+    0 0 40px rgba(139, 92, 246, 0.6);
+  transform-origin: bottom;
+  opacity: 0;
+}
+.vs-timeline-section.is-visible .vs-timeline-vertical-wrapper::after {
+  animation: vs-fade-in-up-line 1.5s ease-in-out 0.2s both;
+}
+/* The Top Glowing Circle */
+.vs-timeline-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 20px #c4b5fd, 0 0 40px #8b5cf6, 0 0 60px rgba(139, 92, 246, 0.8);
+  position: absolute;
+  top: 0;
+  left: -7px;
+  opacity: 0;
+}
+.vs-timeline-section.is-visible .vs-timeline-circle {
+  animation: vs-fade-in 1.5s ease-in-out 1.2s both;
+}
+.vs-timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 90px; 
+}
+.vs-timeline-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  opacity: 0;
+}
+.vs-timeline-section.is-visible .vs-timeline-item {
+  animation: vs-magic-up 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Staggered load animation */
+.vs-timeline-section.is-visible .vs-timeline-item:nth-child(4) { animation-delay: 0.4s; }
+.vs-timeline-section.is-visible .vs-timeline-item:nth-child(3) { animation-delay: 0.6s; }
+.vs-timeline-section.is-visible .vs-timeline-item:nth-child(2) { animation-delay: 0.8s; }
+.vs-timeline-section.is-visible .vs-timeline-item:nth-child(1) { animation-delay: 1.0s; }
+.vs-timeline-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  padding-left: 20px;
+  padding-bottom: 12px;
+  text-shadow: 0 0 15px rgba(165, 180, 252, 0.6), 0 0 30px rgba(139, 92, 246, 0.4);
+}
+/* Horizontal Connector Line */
+.vs-timeline-horizontal {
+  height: 2px;
+  width: 220px;
+  background: rgba(165, 180, 252, 0.8);
+  box-shadow: 0 0 15px rgba(165, 180, 252, 0.8), 0 0 30px rgba(139, 92, 246, 0.6);
+  border-radius: 2px;
+  position: relative;
+}
+.vs-timeline-horizontal::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: -2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 12px #c4b5fd, 0 0 24px rgba(139, 92, 246, 0.9);
+}
+/* Keyframes for animations */
+@keyframes vs-fade-in-up-line { 
+  from { opacity: 0; transform: scaleY(0); } 
+  to { opacity: 1; transform: scaleY(1); } 
+}
+@keyframes vs-magic-up {
+  0% { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(12px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
