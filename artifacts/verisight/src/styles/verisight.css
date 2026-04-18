@@ -10,9 +10,76 @@
     #08080f;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
   color: #e2e8f0;
   scroll-behavior: smooth;
+}
+
+/* ── Left sidebar timeline ─────────────────────────────────────────── */
+.vs-sidebar {
+  position: absolute;
+  left: 6%;
+  top: 10%;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  animation: vs-sidebar-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes vs-sidebar-rise {
+  from { opacity: 0; transform: translateY(70px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.vs-sidebar-line {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 1px;
+  height: calc(100% - 6px);
+  background: linear-gradient(to bottom,
+    rgba(196, 180, 255, 0.7) 0%,
+    rgba(139, 92, 246, 0.4) 60%,
+    transparent 100%);
+}
+
+.vs-sidebar-top-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(196, 180, 255, 0.9), 0 0 22px rgba(139, 92, 246, 0.6);
+  margin-bottom: 32px;
+  flex-shrink: 0;
+}
+
+.vs-sidebar-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 36px;
+  padding-left: 20px;
+  animation: vs-sidebar-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.vs-sidebar-label {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  text-shadow: 0 0 14px rgba(196, 180, 255, 0.4);
+}
+
+.vs-sidebar-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(196, 180, 255, 0.85);
+  box-shadow: 0 0 8px rgba(196, 180, 255, 0.7);
+  align-self: flex-end;
+  margin-right: 2px;
 }
 
 /* ── Find Out button ───────────────────────────────────────────────── */

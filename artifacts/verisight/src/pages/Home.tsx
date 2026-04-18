@@ -1,7 +1,30 @@
+const FEATURES = [
+  "Trained on 6,000+ videos",
+  "CNN + LSTM architecture",
+  "Frame-by-frame analysis",
+  "Temporal pattern detection",
+];
+
 export default function Home() {
   return (
     <div className="vs-root vs-root--home">
       <div className="vs-noise" />
+
+      {/* Left sidebar timeline */}
+      <div className="vs-sidebar">
+        <div className="vs-sidebar-line" />
+        <div className="vs-sidebar-top-dot" />
+        {FEATURES.map((label, i) => (
+          <div
+            className="vs-sidebar-item"
+            key={i}
+            style={{ animationDelay: `${0.1 + i * 0.12}s` }}
+          >
+            <span className="vs-sidebar-label">{label}</span>
+            <div className="vs-sidebar-dot" />
+          </div>
+        ))}
+      </div>
 
       <div className="vs-page-headline-wrap">
         <p className="vs-page-headline">
