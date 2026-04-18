@@ -18,6 +18,7 @@ function App() {
         {/* ── Page 3: Detect — sits below home, slides up on go ── */}
         <div style={{
           position: "absolute", inset: 0,
+          overflowY: "auto",
           transform: page >= 2 ? "translateY(0)" : "translateY(100vh)",
           transition: SLIDE,
           willChange: "transform",
