@@ -19,25 +19,23 @@
 .vs-sidebar {
   position: absolute;
   left: 6%;
-  top: 28%;
+  top: 12%;
   width: 260px;
   z-index: 2;
-  padding-bottom: 60px;
+  padding-bottom: 40px;
 }
 
 .vs-sidebar-vline {
-  position: fixed;
-  left: 6%;
-  top: 0;
+  position: absolute;
+  left: 0;
+  top: 14px;
   bottom: 0;
   width: 1px;
   background: linear-gradient(to bottom,
-    transparent 0%,
-    rgba(196, 180, 255, 0.6) 15%,
-    rgba(139, 92, 246, 0.5) 55%,
-    rgba(109, 40, 217, 0.3) 80%,
+    rgba(196, 180, 255, 0.75) 0%,
+    rgba(139, 92, 246, 0.45) 75%,
     transparent 100%);
-  box-shadow: 0 0 6px rgba(196, 180, 255, 0.25);
+  box-shadow: 0 0 5px rgba(196, 180, 255, 0.25);
 }
 
 .vs-sidebar-top-dot {
