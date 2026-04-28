@@ -1,7 +1,0 @@
-{
-  "buildCommand": "cd artifacts/verisight && npm install && npm run build",
-  "outputDirectory": "artifacts/verisight/dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/artifacts/verisight/index.html" }
-  ]
-}
