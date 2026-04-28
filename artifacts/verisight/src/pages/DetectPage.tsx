@@ -1,112 +1,126 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Shield, Loader2, Eye, AlertTriangle, ShieldCheck } from "lucide-react";
+import { analyzeVideo, type ForensicArtifact } from "../lib/gemini";
+import "../styles/verisight.css";
 
-type Stage = "idle" | "ready" | "analyzing" | "result";
-type Label = "REAL" | "FAKE";
-
-interface Result {
-  label: Label;
+interface DetectResult {
+  label: string;
   confidence: number;
-  frames: string[];
+  filename: string;
+  frames?: string[];
+  faces?: string[];
+  summary?: string;
+  artifacts?: ForensicArtifact[];
 }
 
-function captureFrames(src: string, count: number): Promise<string[]> {
-  return new Promise((resolve) => {
-    const video = document.createElement("video");
-    video.src = src;
-    video.crossOrigin = "anonymous";
-    video.muted = true;
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d")!;
-    const frames: string[] = [];
-    let i = 0;
+const artifactContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
 
-    video.addEventListener("loadedmetadata", () => {
-      canvas.width = 320;
-      canvas.height = 180;
-      const step = () => {
-        if (i >= count) { resolve(frames); return; }
-        video.currentTime = (video.duration / count) * i + 0.1;
-        i++;
-      };
-      video.addEventListener("seeked", function onSeeked() {
-        ctx.drawImage(video, 0, 0, 320, 180);
-        frames.push(canvas.toDataURL("image/jpeg", 0.75));
-        if (frames.length < count) step();
-        else { video.removeEventListener("seeked", onSeeked); resolve(frames); }
-      });
-      step();
-    });
-    video.addEventListener("error", () => resolve([]));
-    video.load();
-  });
-}
+const artifactCardVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1 },
+};
 
 export default function DetectPage() {
-  const [stage, setStage] = useState<Stage>("idle");
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [result, setResult] = useState<Result | null>(null);
-  const [analyzeProgress, setAnalyzeProgress] = useState(0);
+  const [file, setFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [result, setResult] = useState<DetectResult | null>(null);
+  const [frameCount, setFrameCount] = useState(70);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
+  const previewVideoRef = useRef<HTMLVideoElement>(null);
 
-  const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith("video/")) return;
-    setVideoFile(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    setStage("ready");
+  const captureFrames = (src: string, count: number): Promise<{ frames: string[], faces: string[] }> => {
+    return new Promise((resolve) => {
+      const video = document.createElement("video");
+      video.src = src; video.crossOrigin = "anonymous"; video.muted = true;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d")!;
+      const frames: string[] = [];
+      const faces: string[] = [];
+      let i = 0;
+      video.addEventListener("loadedmetadata", () => {
+        canvas.width = 480; canvas.height = 480;
+        const step = () => {
+          if (i >= count) { resolve({ frames, faces }); return; }
+          video.currentTime = (video.duration / count) * i + 0.5;
+          i++;
+        };
+        video.addEventListener("seeked", function onSeeked() {
+          const size = Math.min(video.videoWidth, video.videoHeight);
+          const sx = (video.videoWidth - size) / 2;
+          const sy = (video.videoHeight - size) / 2;
+
+
+          ctx.drawImage(video, sx, sy, size, size, 0, 0, 480, 480);
+          frames.push(canvas.toDataURL("image/jpeg", 0.6));
+
+
+          const faceSize = size * 0.55;
+          const fsx = (video.videoWidth - faceSize) / 2;
+          const fsy = (video.videoHeight - faceSize) / 3.5;
+          ctx.drawImage(video, fsx, fsy, faceSize, faceSize, 0, 0, 480, 480);
+          faces.push(canvas.toDataURL("image/jpeg", 0.6));
+
+          if (frames.length < count) step();
+          else { video.removeEventListener("seeked", onSeeked); resolve({ frames, faces }); }
+        });
+        step();
+      });
+      video.load();
+    });
+  };
+
+  const handleFile = (f: File) => {
+    setFile(f);
+    setVideoPreview(URL.createObjectURL(f));
     setResult(null);
-  }, []);
+    setProgress(0);
+    setError(null);
+  };
 
-  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  }, [handleFile]);
+  const runAnalysis = async () => {
+    if (!file || !videoPreview) return;
+    console.log("UI: Initializing Forensic Scan...");
+    setIsAnalyzing(true);
+    const interval = setInterval(() => setProgress(p => Math.min(p + 5, 95)), 150);
 
-  const handleAnalyze = useCallback(async () => {
-    if (!previewUrl) return;
-    setStage("analyzing");
-    setAnalyzeProgress(0);
+    try {
+      console.log("UI: Capturing", frameCount, "frames...");
+      const { frames, faces } = await captureFrames(videoPreview, frameCount);
+      console.log("UI: Sending to Gemini for Live Analysis...");
 
-    // Animate progress bar
-    const start = Date.now();
-    const duration = 2800;
-    const tick = () => {
-      const p = Math.min((Date.now() - start) / duration, 1);
-      setAnalyzeProgress(p);
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
+      const geminiResult = await analyzeVideo(file);
+      console.log("UI: Gemini analysis complete", geminiResult);
 
-    const [frames] = await Promise.all([
-      captureFrames(previewUrl, 8),
-      new Promise(r => setTimeout(r, duration)),
-    ]);
+      clearInterval(interval);
+      setProgress(100);
 
-    const label: Label = Math.random() > 0.45 ? "FAKE" : "REAL";
-    const confidence = 85 + Math.random() * 14;
-
-    setResult({ label, confidence, frames });
-    setStage("result");
-  }, [previewUrl]);
-
-  useEffect(() => {
-    if (stage === "result" && resultRef.current) {
-      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+      setTimeout(() => {
+        setResult({
+          label: geminiResult.label,
+          confidence: geminiResult.confidence,
+          filename: file.name,
+          frames: frames,
+          faces: faces,
+          summary: geminiResult.summary,
+          artifacts: geminiResult.artifacts ?? [],
+        });
+        setIsAnalyzing(false);
+      }, 500);
+    } catch (err: any) {
+      clearInterval(interval);
+      setIsAnalyzing(false);
+      setError(err.message || "Forensic scan failed. Please check your connection or API key.");
     }
-  }, [stage]);
-
-  const reset = () => {
-    setStage("idle");
-    setVideoFile(null);
-    setPreviewUrl(null);
-    setResult(null);
-    setAnalyzeProgress(0);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -114,189 +128,277 @@ export default function DetectPage() {
       <div className="vs-noise" />
 
       <div className="vs-detect-scroll">
-
-        {/* ── Upload Card ── */}
-        <div className="vs-detect-card vs-detect-upload-card">
-          <p className="vs-detect-eyebrow">Deepfake Analysis</p>
-          <h2 className="vs-detect-title">Upload your video</h2>
-
-          {/* Dropzone / Preview */}
-          <div
-            className={`vs-detect-dropzone${isDragging ? " vs-dz--active" : ""}${videoFile ? " vs-dz--filled" : ""}`}
-            onDrop={onDrop}
-            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-            onDragLeave={() => setIsDragging(false)}
-            onClick={() => !videoFile && fileInputRef.current?.click()}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === "Enter" && !videoFile && fileInputRef.current?.click()}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="video/*"
-              className="vs-hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-            />
-
-            {videoFile && previewUrl ? (
-              <video
-                src={previewUrl}
-                controls
-                className="vs-detect-preview-video"
-                key={previewUrl}
-              />
-            ) : (
-              <div className="vs-dz-empty">
-                <div className="vs-dz-icon">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    <polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <p className="vs-dz-title">Drag &amp; drop your video here</p>
-                <p className="vs-dz-hint">or click to browse &middot; MP4, MOV, AVI</p>
+        <AnimatePresence mode="wait">
+          {!result ? (
+            <motion.div
+              key="portal"
+              className="vs-portal-wrap"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="vs-portal-header">
+                <h1 className="vs-portal-title">Media Ingestion Portal</h1>
               </div>
-            )}
-          </div>
 
-          {/* File meta */}
-          {videoFile && stage !== "analyzing" && (
-            <p className="vs-detect-file-meta">
-              {videoFile.name} &middot; {(videoFile.size / 1024 / 1024).toFixed(2)} MB
-            </p>
-          )}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, y: -10 }}
+                    animate={{ opacity: 1, height: "auto", y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -10 }}
+                    className="vs-portal-error-banner"
+                  >
+                    <div className="vs-error-content">
+                      <AlertTriangle size={14} className="vs-error-icon" />
+                      <span>{error}</span>
+                      <button className="vs-error-close" onClick={() => setError(null)}>×</button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-          {/* Analyze button */}
-          {stage === "ready" && (
-            <button className="vs-detect-btn vs-fade-in" onClick={handleAnalyze}>
-              <svg viewBox="0 0 24 24" fill="none" className="vs-detect-btn-icon">
-                <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <path d="M11 8v3l2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Analyze Video
-            </button>
-          )}
-
-          {/* Analyzing state */}
-          {stage === "analyzing" && (
-            <div className="vs-analyzing vs-fade-in">
-              <div className="vs-analyzing-label">
-                <span className="vs-spinner" />
-                Analyzing video...
-              </div>
-              <div className="vs-progress-track">
-                <div className="vs-progress-fill" style={{ width: `${analyzeProgress * 100}%` }} />
-              </div>
-              <p className="vs-analyzing-sub">Running CNN + LSTM frame analysis</p>
-            </div>
-          )}
-
-          {/* Reset */}
-          {stage === "result" && (
-            <button className="vs-detect-ghost-btn vs-fade-in" onClick={reset}>
-              Upload another video
-            </button>
-          )}
-        </div>
-
-        {/* ── Results ── */}
-        {stage === "result" && result && (
-          <div ref={resultRef} className="vs-detect-results vs-fade-in">
-
-            {/* Verdict */}
-            <div className={`vs-detect-card vs-verdict-card vs-verdict-card--${result.label.toLowerCase()}`}>
-              <div className="vs-verdict-glow" />
-              <div className="vs-verdict-row">
-                <div className="vs-verdict-icon-wrap">
-                  {result.label === "REAL" ? (
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+              <div className="vs-portal-main">
+                <div className="vs-portal-scanner" />
+                <motion.div
+                  className="vs-portal-dropzone"
+                  onClick={() => !isAnalyzing && fileInputRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const f = e.dataTransfer.files[0];
+                    if (f) handleFile(f);
+                  }}
+                  whileHover={!isAnalyzing ? { scale: 1.02 } : {}}
+                  whileTap={!isAnalyzing ? { scale: 0.98 } : {}}
+                >
+                  {videoPreview ? (
+                    <video
+                      key={videoPreview}
+                      ref={previewVideoRef}
+                      src={videoPreview}
+                      className="vs-portal-preview"
+                      playsInline
+                      autoPlay
+                      muted
+                      loop
+                    />
                   ) : (
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                      <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                    </svg>
+                    <div className="vs-portal-dz-text">
+                      <p className="vs-portal-dz-title">Target Media Drop</p>
+                      <p className="vs-portal-dz-hint">MP4, WEBM, MOV up to 50MB</p>
+                    </div>
                   )}
-                </div>
-                <div>
-                  <p className="vs-verdict-label">{result.label}</p>
-                  <p className="vs-verdict-desc">
-                    {result.label === "REAL" ? "This video appears authentic" : "Synthetic manipulation detected"}
+
+                  {isAnalyzing && (
+                    <div className="absolute inset-0 bg-indigo-950/40 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                        className="mb-6"
+                      >
+                        <Shield className="w-12 h-12 text-indigo-400 opacity-50" />
+                      </motion.div>
+                      <div className="vs-analyzing-label font-mono tracking-widest text-indigo-300">
+                        <Loader2 className="animate-spin" size={16} /> multimodal forensic scan...
+                      </div>
+                      <div className="vs-progress-track mt-4 max-w-[200px]">
+                        <div className="vs-progress-fill" style={{ width: `${progress}%` }} />
+                      </div>
+                      <p className="text-[10px] text-indigo-400/60 mt-4 uppercase tracking-[0.2em]">Gemini 2.5 Flash: Neural Audit</p>
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+
+
+
+              {file && !isAnalyzing && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-6">
+                  <button className="vs-detect-btn px-12 py-4 text-lg" onClick={runAnalysis}>
+                    <Shield className="w-5 h-5" /> Initialize Forensic Scan
+                  </button>
+                  <button className="vs-detect-ghost-btn" onClick={() => { setFile(null); setVideoPreview(null); }}>Eject media</button>
+                </motion.div>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="results"
+              className="vs-report-container"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="vs-report-main vs-report-card">
+                <div className="vs-verdict-hero">
+                  <p className="vs-detect-section-label">Final forensic audit verdict</p>
+                  <h2 className={`vs-verdict-badge vs-verdict-badge--${result.label.toLowerCase()}`}>
+                    {result.label}
+                  </h2>
+                  <p className="vs-portal-desc max-w-md mx-auto">
+                    {result.summary ||
+                      `Audit completed using Gemini 2.5 Flash multimodal intelligence. Evaluated ${frameCount} frames for spatiotemporal consistency and facial artifact detection.`}
                   </p>
                 </div>
-              </div>
-              <div className="vs-confidence-row">
-                <span className="vs-confidence-key">Confidence</span>
-                <span className="vs-confidence-pct">{result.confidence.toFixed(1)}%</span>
-              </div>
-              <div className="vs-bar-track">
-                <div
-                  className={`vs-bar-fill vs-bar-fill--${result.label.toLowerCase()}`}
-                  style={{ width: `${result.confidence}%` }}
-                />
-              </div>
-            </div>
 
-            {/* Processed video with detection overlay */}
-            {previewUrl && (
-              <div className="vs-detect-card">
-                <p className="vs-detect-section-label">Processed Output</p>
-                <div className="vs-processed-video-wrap">
-                  <video src={previewUrl} controls className="vs-detect-preview-video" />
-                  <div className={`vs-face-box vs-face-box--${result.label.toLowerCase()}`}>
-                    <span className="vs-face-box-label">{result.label}</span>
+                <div className="vs-meter-wrap">
+                  <div className="vs-meter-label">
+                    <span>Audit Confidence</span>
+                    <span>{result.confidence.toFixed(1)}%</span>
+                  </div>
+                  <div className="vs-meter-bar">
+                    <motion.div
+                      className={`vs-meter-fill vs-meter-fill--${result.label.toLowerCase()}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${result.confidence}%` }}
+                      transition={{ duration: 1.5, delay: 0.5 }}
+                    />
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Analyzed Frames */}
-            {result.frames.length > 0 && (
-              <div className="vs-detect-card">
-                <p className="vs-detect-section-label">Analyzed Frames</p>
-                <div className="vs-frames-grid">
-                  {result.frames.map((src, i) => (
-                    <div key={i} className="vs-frame-item">
-                      <img src={src} alt={`Frame ${i + 1}`} className="vs-frame-img" />
-                      <div className={`vs-frame-tag vs-frame-tag--${result.label.toLowerCase()}`}>
-                        {result.label}
-                      </div>
-                    </div>
+              </div>
+
+              <div className="vs-report-side">
+                <button
+                  className="vs-detect-btn w-full justify-center py-4"
+                  onClick={() => { setFile(null); setVideoPreview(null); setResult(null); }}
+                >
+                  Start New Audit
+                </button>
+              </div>
+
+              <div className="vs-frame-inspector vs-report-card">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="vs-detect-section-label">Full Frame Analysis</p>
+                    <h3 className="text-xl font-medium mt-1">Spatio-Temporal Sequence</h3>
+                  </div>
+                  <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest">
+                    Original Captures
+                  </div>
+                </div>
+
+                <div className="vs-inspector-grid">
+                  {result.frames?.map((f, i) => (
+                    <motion.div
+                      key={i}
+                      className="vs-inspector-frame"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.05 * i }}
+                    >
+                      <img src={f} className="vs-inspector-img" />
+                      <div className="vs-inspector-tag">FRAME_{i + 1}</div>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
-            )}
 
-            {/* Detected Faces */}
-            <div className="vs-detect-card">
-              <p className="vs-detect-section-label">Detected Faces</p>
-              <div className="vs-faces-grid">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className={`vs-face-chip vs-face-chip--${result.label.toLowerCase()}`}>
-                    <div className="vs-face-avatar">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.5" />
-                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
+                <div className="mt-12">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="vs-detect-section-label">Face Analysis</p>
+                      <h3 className="text-xl font-medium mt-1">Neural Consistency Audit</h3>
                     </div>
-                    <div className="vs-face-chip-info">
-                      <span className="vs-face-chip-id">Face {i + 1}</span>
-                      <span className={`vs-face-chip-tag vs-face-chip-tag--${result.label.toLowerCase()}`}>
-                        {result.label} · {(result.confidence - i * 1.5).toFixed(1)}%
-                      </span>
+                    <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest">
+                      Detected Regions
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
 
-          </div>
-        )}
+                  <div className="vs-inspector-grid">
+                    {result.faces?.length ? result.faces.map((f, i) => (
+                      <motion.div
+                        key={i}
+                        className="vs-inspector-frame"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.05 * i }}
+                      >
+                        <img src={f} className="vs-inspector-img" />
+                        <div className="vs-inspector-tag">FACE_{i + 1}</div>
+                        <div className={`absolute bottom-0 inset-x-0 h-1 ${result.label === 'REAL' ? 'bg-emerald-500/50' : 'bg-red-500/50'}`} />
+                      </motion.div>
+                    )) : (
+                      <div className="py-8 text-white/20 font-mono text-sm uppercase tracking-widest">No facial regions detected in sequence</div>
+                    )}
+                  </div>
+
+                  <div className="vs-artifact-section">
+                    <div className="vs-artifact-title">
+                      <Eye size={14} /> Artifact Categorization
+                    </div>
+
+                    <motion.div
+                      variants={artifactContainerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="vs-artifact-grid"
+                    >
+                      {(result.artifacts ?? []).map((artifact, i) => (
+                        <motion.div
+                          key={`${artifact.label}-${i}`}
+                          variants={artifactCardVariants}
+                          className="forensic-card vs-artifact-card"
+                        >
+                          <div className="vs-artifact-card-glow" />
+
+                          <div className="vs-artifact-card-inner">
+                            <div className="vs-artifact-card-head">
+                              <span className="vs-artifact-label">{artifact.label}</span>
+
+                              <span
+                                className={`vs-artifact-severity ${artifact.severity === "HIGH"
+                                    ? "vs-artifact-severity--high"
+                                    : artifact.severity === "MEDIUM"
+                                      ? "vs-artifact-severity--medium"
+                                      : artifact.severity === "LOW"
+                                        ? "vs-artifact-severity--low"
+                                        : "vs-artifact-severity--none"
+                                  }`}
+                              >
+                                {artifact.severity}
+                              </span>
+                            </div>
+
+                            <p className="vs-artifact-description">
+                              {artifact.description}
+                            </p>
+
+                            <div className="vs-artifact-footer">
+                              {artifact.detected ? (
+                                <div className="vs-artifact-status vs-artifact-status--detected">
+                                  <AlertTriangle size={11} strokeWidth={2.5} />
+                                  Neural Artifact Found
+                                </div>
+                              ) : (
+                                <div className="vs-artifact-status vs-artifact-status--safe">
+                                  <ShieldCheck size={11} strokeWidth={2.5} />
+                                  Pattern Verified
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                      {(!result.artifacts || result.artifacts.length === 0) && (
+                        <div className="vs-artifact-empty">
+                          Artifact details were not returned for this scan.
+                        </div>
+                      )}
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+      <input type="file" ref={fileInputRef} className="hidden" accept="video/*" onChange={(e) => {
+        const f = e.target.files?.[0];
+        if (f) handleFile(f);
+      }} />
     </div>
   );
 }
